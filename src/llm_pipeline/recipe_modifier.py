@@ -35,6 +35,7 @@ class RecipeModifier:
     def find_best_match(self, target: str, candidates: List[str]) -> Tuple[Optional[str], Optional[int], float]:
         """
         Find the best matching string in a list of candidates.
+        Prioritizes exact matches and containment matches.
 
         Args:
             target: String to find
@@ -43,15 +44,31 @@ class RecipeModifier:
         Returns:
             Tuple of (best_match, index, similarity_score)
         """
-        if not candidates:
+        if not candidates or not target:
             return None, None, 0.0
 
+        target_lower = target.lower()
         best_match = None
         best_index = None
         best_score = 0.0
 
         for i, candidate in enumerate(candidates):
-            similarity = SequenceMatcher(None, target.lower(), candidate.lower()).ratio()
+            candidate_lower = candidate.lower()
+            
+            # Check for exact match or containment first
+            if target_lower == candidate_lower:
+                similarity = 1.0
+            elif target_lower in candidate_lower:
+                # If target is contained in candidate, it's a strong match.
+                # We give it a high score (>= 0.9) to ensure it beats most fuzzy matches
+                # and passes the threshold. We scale it slightly by length ratio 
+                # so that more specific matches (where target is a larger part of candidate)
+                # are preferred if multiple candidates contain the target.
+                similarity = 0.9 + (0.1 * (len(target_lower) / len(candidate_lower)))
+            else:
+                # Fall back to fuzzy matching
+                similarity = SequenceMatcher(None, target_lower, candidate_lower).ratio()
+            
             if similarity > best_score:
                 best_score = similarity
                 best_match = candidate
