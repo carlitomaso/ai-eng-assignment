@@ -1,0 +1,24 @@
+{
+  "modification_type": "ingredient_substitution",
+  "reasoning": "The user substituted canned yams for fresh sweet potatoes and enhanced the soup with roasted Brussels sprouts, peppers, and a drizzle of heavy cream to add contrasting texture and richness.",
+  "edits": [
+    {
+      "target": "ingredients",
+      "operation": "replace",
+      "find": "1.5 pounds peeled raw sweet potatoes, cut into 1-inch chunks",
+      "replace": "1.5 pounds canned yams"
+    },
+    {
+      "target": "ingredients",
+      "operation": "add_after",
+      "find": "Garnish: chopped honey-roasted peanuts",
+      "add": "Roasted Brussels sprouts and roasted peppers"
+    },
+    {
+      "target": "instructions",
+      "operation": "replace",
+      "find": "Heat through, ladle into bowls, garnish and serve.",
+      "replace": "Heat through, ladle into bowls, top with roasted Brussels sprouts and roasted peppers, drizzle with heavy cream, garnish and serve."
+    }
+  ]
+}

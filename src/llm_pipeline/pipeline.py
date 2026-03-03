@@ -123,7 +123,7 @@ class LLMAnalysisPipeline:
             recipe_file: Path to recipe JSON file
             save_output: Whether to save the enhanced recipe
 
-        Returns:
+        Returns:\
             EnhancedRecipe if successful, None otherwise
         """
         try:
