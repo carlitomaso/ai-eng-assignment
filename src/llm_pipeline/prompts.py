@@ -35,7 +35,7 @@ Instructions: {instructions}
 
 User Review: "{review_text}"
 
-Extract the recipe modifications from this review. The user has made changes to improve the recipe.
+Extract the recipe modifications from this review. The user has made changes to improve the recipe. Do not miss out on any ingredients that they mentioned on the review, add these to the ingredient list.
 
 Output a JSON object with this structure:
 {{
@@ -51,6 +51,17 @@ Output a JSON object with this structure:
         }}
     ]
 }
+
+If an instruction step needs to be replaced, write the exact step in the "find" field, and create new steps if necessary to ensure the atomic nature of the steps in the instructions. For example: 
+Instruction: "Return to pan (or a soup pot); add enough half-and-half so the mixture is souplike, yet thick enough to float garnish. Taste, and add salt and pepper if needed. Heat through, ladle into bowls, garnish and serve." 
+Tweak:"Heat through and ladle into bowls" 
+The output should look like: 
+{{
+    "target": "instructions",
+    "operation": "replace", 
+    "find": "Return to pan (or a soup pot); add enough half-and-half so the mixture is souplike, yet thick enough to float garnish. Taste, and add salt and pepper if needed. Heat through, ladle into bowls, garnish and serve.", 
+    "replace": "Return to pan (or a soup pot); add enough half-and-half so the mixture is souplike, yet thick enough to float garnish. Taste, and add salt and pepper if needed. Heat through and ladle into bowls."
+}}
 
 Focus on concrete changes the user actually made, not general suggestions."""
 
@@ -205,7 +216,7 @@ Instructions: {instructions}
 
 User Review: "{review_text}"
 
-Extract the recipe modifications from this review. The user has made changes to improve the recipe.
+Extract the recipe modifications from this review. The user has made changes to improve the recipe. Do not miss out on any ingredients that they mentioned on the review, add these to the ingredient list.
 
 Output a JSON object with this structure:
 {{
@@ -220,6 +231,17 @@ Output a JSON object with this structure:
             "add": "text to add (for add_after operations)"
         }}
     ]
+}}
+
+If an instruction step needs to be replaced, write the exact step in the "find" field, and create new steps if necessary to ensure the atomic nature of the steps in the instructions. For example: 
+Instruction: "Return to pan (or a soup pot); add enough half-and-half so the mixture is souplike, yet thick enough to float garnish. Taste, and add salt and pepper if needed. Heat through, ladle into bowls, garnish and serve." 
+Tweak:"Heat through and ladle into bowls" 
+The output should look like: 
+{{
+    "target": "instructions",
+    "operation": "replace", 
+    "find": "Return to pan (or a soup pot); add enough half-and-half so the mixture is souplike, yet thick enough to float garnish. Taste, and add salt and pepper if needed. Heat through, ladle into bowls, garnish and serve.", 
+    "replace": "Return to pan (or a soup pot); add enough half-and-half so the mixture is souplike, yet thick enough to float garnish. Taste, and add salt and pepper if needed. Heat through and ladle into bowls."
 }}
 
 Focus on concrete changes the user actually made, not general suggestions."""

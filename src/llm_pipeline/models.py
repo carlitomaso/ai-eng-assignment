@@ -30,7 +30,7 @@ class ModificationEdit(BaseModel):
 
 
 class ModificationObject(BaseModel):
-    """Structured modification parsed from a review."""
+    """Structured modification parsed from a tweak."""
 
     modification_type: Literal[
         "ingredient_substitution",
@@ -45,12 +45,12 @@ class ModificationObject(BaseModel):
     edits: List[ModificationEdit] = Field(description="List of atomic edits to apply")
 
 
-class SourceReview(BaseModel):
-    """Reference to the original review that suggested the modification."""
+class SourceTweak(BaseModel):
+    """Reference to the original tweak that suggested the modification."""
 
-    text: str = Field(description="Full text of the original review")
-    reviewer: Optional[str] = Field(description="Username of the reviewer")
-    rating: Optional[int] = Field(description="Star rating given by reviewer")
+    text: str = Field(description="Full text of the original tweak")
+    reviewer: Optional[str] = Field(description="Username of the contributor")
+    rating: Optional[int] = Field(description="Star rating given by contributor")
 
 
 class ChangeRecord(BaseModel):
@@ -69,8 +69,8 @@ class ChangeRecord(BaseModel):
 class ModificationApplied(BaseModel):
     """Full record of a modification that was applied to a recipe."""
 
-    source_review: SourceReview = Field(
-        description="Review that suggested this modification"
+    source_tweak: SourceTweak = Field(
+        description="Tweak that suggested this modification"
     )
     modification_type: str = Field(description="Category of modification")
     reasoning: str = Field(description="Why this modification was applied")
@@ -135,8 +135,8 @@ class Recipe(BaseModel):
     # Include other fields as needed
 
 
-class Review(BaseModel):
-    """Review model for input data."""
+class Tweak(BaseModel):
+    """Tweak model for input data."""
 
     text: str
     rating: Optional[int] = None
