@@ -4,8 +4,8 @@ import argparse
 import sys
 from pathlib import Path
 from llm_pipeline.models import (
-    Recipe, Review, ModificationObject, 
-    EnhancedRecipe, SourceReview
+    Recipe, Tweak, ModificationObject, 
+    EnhancedRecipe, SourceTweak
 )
 from llm_pipeline.recipe_modifier import RecipeModifier
 from llm_pipeline.enhanced_recipe_generator import EnhancedRecipeGenerator
@@ -72,18 +72,18 @@ def main():
         servings=data.get("servings")
     )
 
-    # Use the same review that generated the prompt (first one with modification)
-    reviews_data = [r for r in data.get("reviews", []) if r.get("has_modification")]
-    if not reviews_data:
-        print(f"Error: No reviews with modifications found in the source recipe '{recipe.title}'.")
+    # Use the same tweak that generated the prompt (first one in featured_tweaks)
+    tweaks_data = data.get("featured_tweaks", [])
+    if not tweaks_data:
+        print(f"Error: No featured tweaks found in the source recipe '{recipe.title}'.")
         return
     
-    source_review_data = reviews_data[0]
-    source_review = Review(
-        text=source_review_data["text"],
-        username=source_review_data.get("username"),
-        rating=source_review_data.get("rating"),
-        has_modification=True
+    source_tweak_data = tweaks_data[0]
+    source_tweak = Tweak(
+        text=source_tweak_data["text"],
+        username=source_tweak_data.get("username"),
+        rating=source_tweak_data.get("rating"),
+        has_modification=source_tweak_data.get("has_modification", True)
     )
 
     # 3. Parse the manual LLM JSON
@@ -104,7 +104,7 @@ def main():
     # 5. Generate Enhanced Recipe
     generator = EnhancedRecipeGenerator(pipeline_version="manual-1.0.0")
     enhanced_recipe = generator.generate_enhanced_recipe(
-        recipe, modified_recipe, modification, source_review, change_records
+        recipe, modified_recipe, modification, source_tweak, change_records
     )
 
     # 6. Save result

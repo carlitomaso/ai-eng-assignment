@@ -18,8 +18,8 @@ from .models import (
     ModificationApplied,
     ModificationObject,
     Recipe,
-    Review,
-    SourceReview,
+    Tweak,
+    SourceTweak,
 )
 
 
@@ -36,24 +36,24 @@ class EnhancedRecipeGenerator:
         self.pipeline_version = pipeline_version
         logger.info(f"Initialized EnhancedRecipeGenerator v{pipeline_version}")
 
-    def create_source_review(self, review: Review) -> SourceReview:
+    def create_source_tweak(self, tweak: Tweak) -> SourceTweak:
         """
-        Convert a Review object to a SourceReview for attribution.
+        Convert a Tweak object to a SourceTweak for attribution.
 
         Args:
-            review: Original review object
+            tweak: Original tweak object
 
         Returns:
-            SourceReview with attribution information
+            SourceTweak with attribution information
         """
-        return SourceReview(
-            text=review.text, reviewer=review.username, rating=review.rating
+        return SourceTweak(
+            text=tweak.text, reviewer=tweak.username, rating=tweak.rating
         )
 
     def create_modification_applied(
         self,
         modification: ModificationObject,
-        source_review: Review,
+        source_tweak: Tweak,
         change_records: List[ChangeRecord],
     ) -> ModificationApplied:
         """
@@ -61,14 +61,14 @@ class EnhancedRecipeGenerator:
 
         Args:
             modification: Original modification object
-            source_review: Review that suggested this modification
+            source_tweak: Tweak that suggested this modification
             change_records: List of changes that were actually made
 
         Returns:
             ModificationApplied with full attribution
         """
         return ModificationApplied(
-            source_review=self.create_source_review(source_review),
+            source_tweak=self.create_source_tweak(source_tweak),
             modification_type=modification.modification_type,
             reasoning=modification.reasoning,
             changes_made=change_records,
@@ -113,7 +113,7 @@ class EnhancedRecipeGenerator:
         original_recipe: Recipe,
         modified_recipe: Recipe,
         modification: ModificationObject,
-        source_review: Review,
+        source_tweak: Tweak,
         change_records: List[ChangeRecord],
     ) -> EnhancedRecipe:
         """
@@ -123,7 +123,7 @@ class EnhancedRecipeGenerator:
             original_recipe: Original unmodified recipe
             modified_recipe: Recipe with modifications applied
             modification: Single modification that was applied
-            source_review: Review that suggested the modification
+            source_tweak: Tweak that suggested the modification
             change_records: Changes made for the modification
 
         Returns:
@@ -133,7 +133,7 @@ class EnhancedRecipeGenerator:
 
         # Create modification applied record
         modification_applied = self.create_modification_applied(
-            modification, source_review, change_records
+            modification, source_tweak, change_records
         )
         modifications_applied = [modification_applied]
 
@@ -203,8 +203,8 @@ class EnhancedRecipeGenerator:
             },
             "citations": [
                 {
-                    "reviewer": mod.source_review.reviewer,
-                    "rating": mod.source_review.rating,
+                    "contributor": mod.source_tweak.reviewer,
+                    "rating": mod.source_tweak.rating,
                     "modification_type": mod.modification_type,
                     "reasoning": mod.reasoning,
                     "changes": [

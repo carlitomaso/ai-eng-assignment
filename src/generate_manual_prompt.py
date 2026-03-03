@@ -3,7 +3,7 @@ import os
 import argparse
 import sys
 from pathlib import Path
-from llm_pipeline.models import Recipe
+from llm_pipeline.models import Recipe, Tweak
 from llm_pipeline.prompts import build_simple_prompt
 
 def find_recipe_file(recipe_id: str, data_dir: Path) -> Path:
@@ -59,19 +59,19 @@ def main():
         instructions=data.get("instructions", [])
     )
     
-    # Find reviews with modifications
-    reviews = [r for r in data.get("reviews", []) if r.get("has_modification")]
+    # Find featured tweaks
+    tweaks = data.get("featured_tweaks", [])
     
-    if not reviews:
-        print(f"No reviews with modifications found in recipe: {recipe.title}")
+    if not tweaks:
+        print(f"No featured tweaks found in recipe: {recipe.title}")
         return
 
-    # Select the first review for consistency in manual mode
-    selected_review = reviews[0]
+    # Select the first tweak for consistency in manual mode
+    selected_tweak = tweaks[0]
     
     # Generate the prompt
     prompt = build_simple_prompt(
-        selected_review["text"], 
+        selected_tweak["text"], 
         recipe.title, 
         recipe.ingredients, 
         recipe.instructions
@@ -82,7 +82,7 @@ def main():
     print("="*80 + "\n")
     print(prompt)
     print("\n" + "="*80)
-    print(f"SOURCE REVIEW BY: {selected_review.get('username', 'Unknown')}")
+    print(f"SOURCE TWEAK BY: {selected_tweak.get('username', 'Unknown')}")
     print("="*80)
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 LLM Analysis Pipeline - Main Orchestrator
 
 This module coordinates the complete 3-step pipeline:
-1. Extract modifications from reviews
+1. Extract modifications from tweaks
 2. Apply modifications to recipes
 3. Generate enhanced recipes with attribution
 
@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 from loguru import logger
 
 from .enhanced_recipe_generator import EnhancedRecipeGenerator
-from .models import EnhancedRecipe, Recipe, Review
+from .models import EnhancedRecipe, Recipe, Tweak
 from .recipe_modifier import RecipeModifier
 from .tweak_extractor import TweakExtractor
 
@@ -88,30 +88,30 @@ class LLMAnalysisPipeline:
             rating=recipe_data.get("rating"),
         )
 
-    def parse_reviews_data(self, recipe_data: Dict[str, Any]) -> List[Review]:
+    def parse_tweaks_data(self, recipe_data: Dict[str, Any]) -> List[Tweak]:
         """
-        Parse raw review data into Review objects.
+        Parse raw featured tweaks data into Tweak objects.
 
         Args:
-            recipe_data: Raw recipe data containing reviews
+            recipe_data: Raw recipe data containing featured tweaks
 
         Returns:
-            List of Review objects
+            List of Tweak objects
         """
-        reviews = []
-        raw_reviews = recipe_data.get("reviews", [])
+        tweaks = []
+        raw_tweaks = recipe_data.get("featured_tweaks", [])
 
-        for review_data in raw_reviews:
-            if review_data.get("text"):
-                review = Review(
-                    text=review_data["text"],
-                    rating=review_data.get("rating"),
-                    username=review_data.get("username"),
-                    has_modification=review_data.get("has_modification", False),
+        for tweak_data in raw_tweaks:
+            if tweak_data.get("text"):
+                tweak = Tweak(
+                    text=tweak_data["text"],
+                    rating=tweak_data.get("rating"),
+                    username=tweak_data.get("username"),
+                    has_modification=tweak_data.get("has_modification", False),
                 )
-                reviews.append(review)
+                tweaks.append(tweak)
 
-        return reviews
+        return tweaks
 
     def process_single_recipe(
         self, recipe_file: str, save_output: bool = True
@@ -132,24 +132,24 @@ class LLMAnalysisPipeline:
             # Step 0: Load and parse data
             recipe_data = self.load_recipe_data(recipe_file)
             recipe = self.parse_recipe_data(recipe_data)
-            reviews = self.parse_reviews_data(recipe_data)
+            tweaks = self.parse_tweaks_data(recipe_data)
 
             logger.info(f"Loaded recipe: {recipe.title}")
             logger.info(
-                f"Found {len(reviews)} reviews, {len([r for r in reviews if r.has_modification])} with modifications"
+                f"Found {len(tweaks)} featured tweaks"
             )
 
-            if not any(r.has_modification for r in reviews):
-                logger.warning("No reviews with modifications found")
+            if not tweaks:
+                logger.warning("No featured tweaks found")
                 return None
 
-            # Step 1: Extract modification from one random review
-            logger.info("Step 1: Extracting modification from a single review...")
-            modification, source_review = (
-                self.tweak_extractor.extract_single_modification(reviews, recipe)
+            # Step 1: Extract modification from one random tweak
+            logger.info("Step 1: Extracting modification from a single tweak...")
+            modification, source_tweak = (
+                self.tweak_extractor.extract_single_modification(tweaks, recipe)
             )
 
-            if not modification or not source_review:
+            if not modification or not source_tweak:
                 logger.warning("No modification could be extracted")
                 return None
 
@@ -171,7 +171,7 @@ class LLMAnalysisPipeline:
             logger.info("Step 3: Generating enhanced recipe with attribution...")
 
             enhanced_recipe = self.enhanced_generator.generate_enhanced_recipe(
-                recipe, modified_recipe, modification, source_review, change_records
+                recipe, modified_recipe, modification, source_tweak, change_records
             )
 
             logger.info(f"Generated enhanced recipe: {enhanced_recipe.title}")
